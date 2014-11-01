@@ -1,0 +1,147 @@
+<!doctype html>
+<style type="text/css">
+  body{ margin: 0; background: #ddddff;
+    color: #333; font-family: Trebuchet MS; width: 100% }
+  * { padding: 0; margin: 0; display: inline-block;
+    box-sizing: border-box }
+  head,script{ display: none }
+  input{
+    border: 1px solid #333;
+    padding: 8px 12px;
+    border-color: #ddddff;
+    background: #ccccff;
+    font-size: 16px;
+    width: 80%;
+  }
+  input:focus{
+    background: #FFF;
+    border-color: #333;
+    outline: none
+  }
+  div{ display: block }
+  .center{ text-align: center; width: 100% }
+  .left{ text-align: left }
+  .p20{ padding: 20px 0 }
+  .m20{ margin: 20px 0 }
+  .m600{ width: 600px }
+  hr{ border: none; width: 100%; border-top: 1px solid #333 }
+  .close{ font-size: 24px; cursor: pointer;
+    padding: 0 10px; color: #999; }
+  .close:hover{ color: #393 }
+  .checked input,.checked .check{
+    text-decoration: line-through;
+    color: #666;
+  }
+  @media (max-width: 640px) {
+    .m600{ width: 100%; padding-left: 20px; padding-right: 20px }
+  }
+  .clear{
+    cursor: pointer;
+    text-align: center;
+    font-size: 12px;
+    padding: 20px 0;
+  }
+  .clear:hover{
+    color: #393;
+  }
+</style>
+<div class="m center">
+<span class="m600 left p20">
+  <div>
+    <h1>Task List</h1>
+  </div>
+  <hr class="m20">
+  <div id="example"></div>
+</span>
+</div>
+
+<script src=
+"http://cdnjs.cloudflare.com/ajax/libs/mithril/0.1.22/mithril.js"
+></script>
+<script>
+var PageList = function() {
+	return m.prop([
+	  m.prop({title: 'Arbitrary task name'}),
+	  m.prop({title: 'Some other task'}),
+	  m.prop({title: ''})
+	])
+}
+m.module(document.getElementById("example"), {
+  controller : function() {
+  	this.pages = PageList()
+
+  	this.clear_checked = function(){
+  	  this.pages(this.pages().filter(function(page){
+  	    return !page().checked
+  	  }))
+  	}.bind(this)
+
+  	// See if we need to add a new task
+  	this.check_for_empty = function(){
+	    var ps = this.pages()
+	    if(ps[ps.length-1]().title!==''){
+	      ps.push(m.prop({title:''}))
+	      this.pages(ps)
+	    }
+	    // or maybe remove one we added!
+	    if(ps.length>1&&
+	      ps[ps.length-2]().title===''&&
+	      ps[ps.length-1]().title===''){
+	        ps.pop()
+	        this.pages(ps)
+	    }
+	  }.bind(this)
+
+
+  	this.remove_empty = function(){
+  	  this.pages(this.pages().filter(function(page){
+  	    return page()
+  	  }))
+  	}.bind(this)
+  },
+  view : function(ctrl) {
+    var checked = ctrl.pages().map(function(a){
+      return a().checked?1:0
+    }).reduce(function(a,b){
+      return a + b
+    })
+  	return [
+  		ctrl.pages().map(function(page) {
+      	return m("div",{
+      	  class: page().checked?'checked':''
+      	},[
+      	  m("input", {
+        	  placeholder: 'New Task',
+        	  onkeyup: function(){
+        	    page({title:this.value,checked:page().checked})
+        	    ctrl.check_for_empty()
+        	  },
+        	  value: page().title
+        	}),
+        	m("close", {
+        	  class: 'close check',
+        	  onclick: function(){
+        	    page({
+        	      checked: !page().checked,
+        	      title: page().title })
+        	  }
+        	},page().title?unescape('✓'):''),
+        	m('close', {
+        	  onclick: function(){
+        	    page(false)
+        	    ctrl.remove_empty()
+        	  },
+        	  class: 'close'
+        	},
+        	  page().checked?'x':''
+        	)
+        ])
+      }),
+      m('div',{
+        class: 'clear',
+        onclick: ctrl.clear_checked
+      },checked?'Clear '+checked+' completed tasks':'')
+  	];
+  }
+});
+</script>
