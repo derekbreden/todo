@@ -59,7 +59,7 @@
 "http://cdnjs.cloudflare.com/ajax/libs/mithril/0.1.22/mithril.js"
 ></script>
 <script>
-var PageList = function() {
+var TaskList = function() {
 	return m.prop([
 	  m.prop({title: 'Arbitrary task name'}),
 	  m.prop({title: 'Some other task'}),
@@ -68,70 +68,71 @@ var PageList = function() {
 }
 m.module(document.getElementById("example"), {
   controller : function() {
-  	this.pages = PageList()
+    this.tasks = TaskList()
 
   	this.clear_checked = function(){
-  	  this.pages(this.pages().filter(function(page){
-  	    return !page().checked
+      this.tasks(this.tasks().filter(function(task){
+        return !task().checked
   	  }))
   	}.bind(this)
 
   	// See if we need to add a new task
   	this.check_for_empty = function(){
-	    if(this.pages()[this.pages().length-1]().title!==''){
-	      this.pages().push(m.prop({title:''}))
-	      this.pages(this.pages())
+	    if(this.tasks()[this.tasks().length-1]().title!==''){
+        var ts = this.tasks()
+        ts.push(m.prop({title:''}))
+        this.tasks(ts)
 	    }
 	  }.bind(this)
 
 
   	this.remove_empty = function(){
-  	  this.pages(this.pages().filter(function(page){
-  	    return page()
+      this.tasks(this.tasks().filter(function(task){
+        return task()
   	  }))
   	}.bind(this)
   },
   view : function(ctrl) {
-    var checked = ctrl.pages().map(function(a){
+    var checked = ctrl.tasks().map(function(a){
       return a().checked?1:0
     }).reduce(function(a,b){
       return a + b
     })
   	return [
-  		ctrl.pages().map(function(page) {
+      ctrl.tasks().map(function(task) {
       	return m("div",{
-      	  class: page().checked?'checked':''
+          class: task().checked?'checked':''
       	},[
           m("input", {
             placeholder: 'New Task',
             onkeyup: function(){
-              page({title:this.value,checked:page().checked})
+              task({title:this.value,checked:task().checked})
               ctrl.check_for_empty()
               if(!this.value&&this.lastValue===this.value){
-                page(false)
+                task(false)
                 this.blur()
                 ctrl.remove_empty()
               }
               this.lastValue = this.value
             },
-            value: page().title
+            value: task().title
           }),
         	m("close", {
         	  class: 'close check',
         	  onclick: function(){
-        	    page({
-        	      checked: !page().checked,
-        	      title: page().title })
+              task({
+                checked: !task().checked,
+                title: task().title })
         	  }
-        	},page().title?unescape('✓'):''),
+          },task().title?unescape('✓'):''),
         	m('close', {
         	  onclick: function(){
-        	    page(false)
+              task(false)
         	    ctrl.remove_empty()
         	  },
         	  class: 'close'
         	},
-        	  page().checked?'x':''
+            task().checked?'x':''
         	)
         ])
       }),
