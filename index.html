@@ -112,6 +112,7 @@ m.module(document.getElementById("example"), {
                 task(false)
                 this.blur()
                 ctrl.remove_empty()
+                ctrl.check_for_empty()
               }
               this.lastValue = this.value
             },
@@ -129,6 +130,7 @@ m.module(document.getElementById("example"), {
         	  onclick: function(){
               task(false)
         	    ctrl.remove_empty()
+              ctrl.check_for_empty()
         	  },
         	  class: 'close'
         	},
