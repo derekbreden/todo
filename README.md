@@ -1,6 +1,6 @@
 # Task List
 
-A simple todo app made for an interview take home quiz.
+A simple todo app written in mithril.
 
 Check [tyfol.com](http://tyfol.com/) for demo.
 
